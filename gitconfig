@@ -1,0 +1,40 @@
+[alias]
+  br = branch
+  ci = commit --verbose
+  commit = commit --verbose
+  co = checkout
+  del = rm
+  delete = rm
+  exclude = !sh -c 'mkdir -p .git/info && echo "$1" >> .git/info/exclude' -
+  h = help
+  lol = log --graph --oneline --decorate
+  l = log --pretty=format:'%C(yellow)%h %Cred%ad %Cblue%an%Cgreen%d %Creset%s' --date=short
+  lola = log --branches --tags --remotes --graph --oneline --decorate
+  move = mv
+  praise = blame
+  put = "!f() { remote=${1:-origin}; git push -u $remote HEAD; }; f"
+  rb = rebase
+  rename = mv
+  st = status
+[apply]
+  whitespace = nowarn
+[branch]
+  autosetuprebase = always
+[branch "master"]
+  rebase = true
+[color]
+  ui = true
+[core]
+  excludesfile = ~/.gitignore
+  preloadindex = true
+[init]
+  templatedir = ~/.git_template
+[push]
+  default = tracking
+[user]
+	email = john.iacona@korukids.co.uk
+  name = John Iacona
+[commit]
+  verbose = true
+[rebase]
+	autoStash = true

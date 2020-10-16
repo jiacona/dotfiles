@@ -1,0 +1,34 @@
+# General
+alias gg='git grep';
+alias ll='~/bin/ls.sh -lh';
+alias ls='~/bin/ls.sh';
+alias tmux='~/bin/tmux.sh';
+
+# Docker
+alias docker-rm-dangling-volumes="docker volume ls -f dangling=true | cut -d' ' -f 16 | tail -n +2 | xargs -I{} docker volume rm {}";
+alias docker-rm-dangling-images="docker images --quiet --filter=dangling=true | xargs --no-run-if-empty docker rmi";
+
+# The ability to navigate 10 directories up should be enough to cover most cases
+alias ..='cd ..';
+alias ...='cd ../..';
+alias ....='cd ../../..';
+alias .....='cd ../../../..';
+alias ......='cd ../../../../..';
+alias .......='cd ../../../../../..';
+alias ........='cd ../../../../../../..';
+alias .........='cd ../../../../../../../..';
+alias ..........='cd ../../../../../../../../..';
+alias ...........='cd ../../../../../../../../../..';
+
+# dynamically detect project directories and create aliases
+if [ -d $SOURCE_DIRECTORY ]; then
+  for d in `\ls $SOURCE_DIRECTORY`; do
+    alias cd-$d="cd $SOURCE_DIRECTORY/$d";
+  done
+fi
+
+# rails/ruby
+alias be='bundle exec'
+alias r='bin/rails'
+alias rch='bin/rspec $(git ls-files --modified --others spec)'
+alias rrefresh='bundle install && yarn install && bundle exec rake db:migrate'
