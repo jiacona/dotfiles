@@ -1,3 +1,6 @@
+source /usr/local/share/antigen/antigen.zsh
+
+
 # Prompt with VCS
 autoload -Uz vcs_info
 zstyle ':vcs_info:*' enable git
@@ -24,6 +27,7 @@ fpath=(
 )
 
 autoload -Uz compinit
+compinit
 
 # Keybindings
 bindkey "^A" beginning-of-line
@@ -38,8 +42,6 @@ HISTFILE=~/.zhistory
 HISTSIZE=10000
 SAVEHIST=10000
 
-source "/usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
-
 # project dir
 SOURCE_DIRECTORY="$HOME/src"
 
@@ -50,7 +52,8 @@ source "$HOME/.common_aliases"
 PATH="$HOME/.bin:${PATH}"
 
 # Homebrew
-PATH="/usr/local/sbin:${PATH}"
+# PATH="/usr/local/sbin:${PATH}"
+eval "$(/opt/homebrew/bin/brew shellenv)"
 
 # mkdir .git/safe for trusted repositories
 PATH=".git/safe/../../node_modules/.bin:${PATH}"
@@ -66,3 +69,15 @@ fpath=(${ASDF_DIR}/completions $fpath)
 # initialise completions with ZSH's compinit
 autoload -Uz compinit
 compinit
+
+antigen bundle zsh-users/zsh-syntax-highlighting 
+antigen bundle Aloxaf/fzf-tab
+
+antigen apply
+
+# Custom system psql version
+export PATH="/usr/local/opt/postgresql@12/bin:$PATH"
+
+export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

@@ -38,3 +38,10 @@
   verbose = true
 [rebase]
 	autoStash = true
+	autosquash = true
+[fetch]
+	prune = true
+[pull]
+	rebase = true
+[advice]
+	detachedHead = false

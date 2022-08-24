@@ -32,3 +32,10 @@ alias be='bundle exec'
 alias r='bin/rails'
 alias rch='bin/rspec $(git ls-files --modified --others spec)'
 alias rrefresh='bundle install && yarn install && bundle exec rake db:migrate'
+
+alias git-clean='git branch --merged master | grep -v "\* master" | xargs -n 1 git branch -d'
+alias fixup='$HOME/bin/fixup'
+
+alias rroutes='bin/rails routes | fzf'
+
+source "$HOME/.git_aliases"

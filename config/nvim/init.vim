@@ -2,29 +2,40 @@ call plug#begin('~/.vim/plugged')
 
 Plug 'altercation/vim-colors-solarized'
 Plug 'amadeus/vim-mjml'
+Plug 'bkad/CamelCaseMotion'
 Plug 'dense-analysis/ale'
 Plug 'itchyny/lightline.vim'
 Plug 'janko/vim-test'
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/seoul256.vim'
-Plug 'jxnblk/vim-mdx-js'
-Plug 'maxmellon/vim-jsx-pretty'
 Plug 'mileszs/ack.vim'
-Plug 'mtth/scratch.vim'
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'neoclide/coc.nvim', {'tag': 'v0.0.81'}
+Plug 'pedrohdz/vim-yaml-folds'
+Plug 'sheerun/vim-polyglot'
+Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-eunuch'
 Plug 'tpope/vim-fugitive'
-Plug 'tpope/vim-haml'
-Plug 'tpope/vim-rails'
+Plug 'tpope/vim-projectionist'
 Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-surround'
-Plug 'vim-syntastic/syntastic'
+Plug 'tpope/vim-vinegar'
 
 call plug#end()
 
 syntax on
 filetype plugin indent on
+
+map <silent> w <Plug>CamelCaseMotion_w
+map <silent> b <Plug>CamelCaseMotion_b
+map <silent> e <Plug>CamelCaseMotion_e
+
+sunmap w
+sunmap b
+sunmap e
+
+" Yank to system clipboard
+noremap Y "+y
 
 " Colorscheme
 let g:seoul256_background = 235
@@ -40,6 +51,7 @@ hi clear SignColumn
 " Highlighting rule to catch leading/trainling whitespace
 au BufRead,BufNew,BufNewFile * syn match ExtraSpace /^\s\+\|\s\+$/
 
+" E605: Exception not caught: Third party code is using fugitive#head() which has been removed. Change it to FugitiveHead()
 " Right rule
 set colorcolumn=88
 
@@ -68,6 +80,8 @@ set shiftwidth=2
 set tabstop=2
 set expandtab
 
+:imap jj <Esc>
+
 let loaded_matchparen = 1
 let mapleader = ','
 set timeoutlen=200
@@ -78,12 +92,12 @@ map <Leader>b :Buf<CR>
 let g:LanguageClient_serverCommands = { 'ruby': ['solargraph', 'stdio'] }
 
 " testing mappings
-let test#strategy = "basic"
+let test#strategy = "neovim"
 let test#javascript#jest#options = "--silent"
 let test#ruby#rspec#options = {'file': '--format documentation'}
 
 map <Leader>t :TestFile<CR>
-map <Leader>f :TestNearest<CR>
+map <Leader>T :TestNearest<CR>
 map <Leader>tt :TestLast<CR>
 map <Leader>a :TestSuite<CR>
 map <Leader>v :TestVisit<CR>
@@ -129,14 +143,14 @@ let g:lightline = {
       \ },
       \ 'component': {
       \   'modified': '%{&filetype=="help"?"":&modified?"+":&modifiable?"":"-"}',
-      \   'fugitive': '%{exists("*fugitive#head")?fugitive#head():""}'
+      \   'fugitive': '%{exists("*fugitive#head")?FugitiveHead():""}'
       \ },
       \ 'component_function': {
       \   'filename': 'CurrentFilename'
       \ },
       \ 'component_visible_condition': {
       \   'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
-      \   'fugitive': '(exists("*fugitive#head") && ""!=fugitive#head())'
+      \   'fugitive': '(exists("*FugitiveHead") && ""!=FugitiveHead())'
       \ },
       \ 'separator': { 'left': '', 'right': '' },
       \ 'subseparator': { 'left': '', 'right': '' }
@@ -173,14 +187,14 @@ noremap <leader>gb :BCommits<CR>
 nmap <silent> <leader>f :ALEFix<CR>
 let g:ale_sign_error = '>>'
 let g:ale_sign_warning = '>>'
-let g:ale_fix_on_save = 1
+let g:ale_fix_on_save = 0
 let g:ale_fixers = {
       \ 'javascript': ['prettier'],
       \ 'jsx': ['prettier'],
       \ 'ruby': ['rubocop']
       \ }
 let g:ale_history_enabled = 0
-let g:ale_lint_on_enter = 0
+let g:ale_lint_on_enter = 1
 let g:ale_lint_on_text_changed = 'never'
 let g:ale_open_list = 0
 
@@ -259,3 +273,6 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 
 " Remap for rename current word
 nmap <leader>rn <Plug>(coc-rename)
+
+" Spellcheck git commits
+autocmd FileType gitcommit setlocal spell
