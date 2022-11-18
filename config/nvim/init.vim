@@ -1,6 +1,5 @@
-call plug#begin('~/.vim/plugged')
+call plug#begin()
 
-Plug 'altercation/vim-colors-solarized'
 Plug 'amadeus/vim-mjml'
 Plug 'bkad/CamelCaseMotion'
 Plug 'dense-analysis/ale'
@@ -10,7 +9,7 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/seoul256.vim'
 Plug 'mileszs/ack.vim'
-Plug 'neoclide/coc.nvim', {'tag': 'v0.0.81'}
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'pedrohdz/vim-yaml-folds'
 Plug 'sheerun/vim-polyglot'
 Plug 'tpope/vim-commentary'
@@ -20,8 +19,11 @@ Plug 'tpope/vim-projectionist'
 Plug 'tpope/vim-rhubarb'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-vinegar'
+Plug 'tpope/vim-rails', { 'for': 'ruby' }
 
 call plug#end()
+
+set termguicolors
 
 syntax on
 filetype plugin indent on
@@ -134,7 +136,7 @@ function! CurrentFilename()
 endfunction
 
 let g:lightline = {
-      \ 'colorscheme': 'solarized',
+      \ 'colorscheme': 'seoul256',
       \ 'active': {
       \   'left': [
       \      ['mode', 'paste'],
@@ -151,9 +153,7 @@ let g:lightline = {
       \ 'component_visible_condition': {
       \   'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
       \   'fugitive': '(exists("*FugitiveHead") && ""!=FugitiveHead())'
-      \ },
-      \ 'separator': { 'left': '', 'right': '' },
-      \ 'subseparator': { 'left': '', 'right': '' }
+      \ }
       \ }
 
 " "improve autocomplete menu color
@@ -177,8 +177,8 @@ noremap <leader>ww :call ToggleWordWrap()<CR>
 
 " fzf integration
 noremap <c-p> :GFiles --cached --others --exclude-standard<CR>
-noremap <leader>s :Ag!<CR>
-noremap <leader>sw :exe 'Ag!' expand('<cword>')<CR>
+noremap <leader>s :Rg!<CR>
+noremap <leader>sw :exe 'Rg!' expand('<cword>')<CR>
 noremap <leader>l :Lines<CR>
 noremap <leader>g :Commits<CR>
 noremap <leader>gb :BCommits<CR>
@@ -190,6 +190,8 @@ let g:ale_sign_warning = '>>'
 let g:ale_fix_on_save = 0
 let g:ale_fixers = {
       \ 'javascript': ['prettier'],
+      \ 'typescriptreact': ['prettier'],
+      \ 'typescript': ['prettier'],
       \ 'jsx': ['prettier'],
       \ 'ruby': ['rubocop']
       \ }
@@ -214,7 +216,7 @@ set hidden
 set nowritebackup
 
 " Better display for messages
-set cmdheight=2
+set cmdheight=3
 
 " You will have bad experience for diagnostic messages when it's default 4000.
 set updatetime=300
@@ -225,31 +227,26 @@ set shortmess+=c
 " always show signcolumns
 set signcolumn=yes
 
-" Use tab for trigger completion with characters ahead and navigate.
-" Use command ':verbose imap <tab>' to make sure tab is not mapped by other plugin.
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-function! s:check_back_space() abort
+" Use <Tab> and <S-Tab> to navigate the completion list:
+function! CheckBackSpace() abort
   let col = col('.') - 1
   return !col || getline('.')[col - 1]  =~# '\s'
 endfunction
-
-" Use <c-space> to trigger completion.
-inoremap <silent><expr> <c-space> coc#refresh()
+inoremap <expr> <Tab> 
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ coc#expandableOrJumpable() ? "\<C-r>=coc#rpc#request('doKeymap', ['snippets-expand-jump',''])\<CR>" : 
+      \ CheckBackSpace() ? "\<TAB>" :
+      \ coc#refresh()
+inoremap <expr> <S-Tab> coc#pum#visible() ? coc#pum#prev(1) : "\<S-Tab>"
+let g:coc_snippet_next = '<tab>'
 
 " Use <cr> to confirm completion, `<C-g>u` means break undo chain at current position.
 " Coc only does snippet and additional edit on confirm.
-inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-" Or use `complete_info` if your vim support it, like:
-" inoremap <expr> <cr> complete_info()["selected"] != "-1" ? "\<C-y>" : "\<C-g>u\<CR>"
+inoremap <expr> <cr> coc#pum#visible() ? coc#pum#confirm() : "\<CR>"
 
 " Use `[g` and `]g` to navigate diagnostics
-nmap <silent> [g <Plug>(coc-diagnostic-prev)
-nmap <silent> ]g <Plug>(coc-diagnostic-next)
+nmap <silent> gp <Plug>(coc-diagnostic-prev)
+nmap <silent> gn <Plug>(coc-diagnostic-next)
 
 " Remap keys for gotos
 nmap <silent> gd <Plug>(coc-definition)
@@ -273,6 +270,24 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 
 " Remap for rename current word
 nmap <leader>rn <Plug>(coc-rename)
+
+" Mappings for CoCList
+" Show all diagnostics.
+nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+" Manage extensions.
+nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+" Show commands.
+nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+" Find symbol of current document.
+nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+" Search workspace symbols.
+nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+" Do default action for next item.
+nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+" Do default action for previous item.
+nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+" Resume latest coc list.
+nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
 
 " Spellcheck git commits
 autocmd FileType gitcommit setlocal spell
